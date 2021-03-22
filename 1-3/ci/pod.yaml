@@ -1,0 +1,38 @@
+ # this file is based off of https://jenkins-x.io/community/code/builder-images/
+apiVersion: 'v1'
+kind: 'Pod'
+spec:
+  serviceAccountName: jenkins  # will need a kubes SA account to auth against the cluster
+  conatainers:
+    - name: 'runner'
+      image: runner:1 # image is the outcome of building 1-3/ci/Dockerfile
+      env:
+        - name: DOCKER_CONFIG
+          value: /home/jenkins/.docker
+        - name: JENKINS_URL
+          value: http://jenkins:8080  # value is based off the jenkins svc being named jenkins and exposing 8080
+        - name: XDG_CONFIG_HOME
+          value: /home/jenkins
+        - name: GIT_COMMITTER_EMAIL
+          value: jenkins-x@googlegroups.com
+        - name: GIT_AUTHOR_EMAIL
+          value: jenkins-x@googlegroups.com
+        - name: GIT_AUTHOR_NAME
+          value: jenkins-x-bot
+        - name: GIT_COMMITTER_NAME
+          value: jenkins-x-bot
+      command:
+        - 'cat'
+      tty: true
+      volumeMounts:
+        - mountPath: /var/run/docker.sock
+          name: docker
+    - name: 'jnlp' # needed as a sidecart so jenkins is able to communicate with the pod
+      image: jenkinsci/jnlp-slave:4.3-1 #taken from https://hub.docker.com/r/jenkinsci/jnlp-slave
+      tty: true
+  volumes:
+    - name: docker
+      hostPath:
+        path: /var/run/docker.sock
+
+        

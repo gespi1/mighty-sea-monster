@@ -1,0 +1,24 @@
+pipeline {
+  agent {
+    kubernetes {
+      label 'podboy'
+      defaultContainer 'runner'
+      yamlFile 'ci/pod.yaml'
+    }
+  }
+  stages {
+    stage('build') {
+      git credentialsId: 'github-creds', url: 'https://github.com/gespi1/kraken-test' // assuming my jenkins has that cred stored
+      sh """
+      docker build -t litecoin:${env.BUILD_NUMBER} kraken-test/1-3/.
+      sed -i 's/<TAG>/${env.BUILD_NUMBER}/'  kraken_test/1-3/values.yaml
+      """
+    }
+    // forget if i need to stage the files from the build stage and then call them on to the deploy stage
+    stage('deploy') {
+      sh """
+      helm install litecoin litcoin-chart/ --values kraken-test/1-3/values.yaml
+      """
+    }
+  }
+}

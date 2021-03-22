@@ -1,0 +1,79 @@
+# referenced https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: litecoin
+  labels:
+    app: litecoin
+spec:
+  ports:
+  - port: 9332
+    name: p1
+  - port: 9333
+    name: p2
+  - port: 19332
+    name: p3
+  - port: 19333
+    name: p4
+  - port: 19444
+    name: p5
+  clusterIP: None
+  selector:
+    app: litecoin
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: litecoin
+spec:
+  selector:
+    matchLabels:
+      app: litecoin
+  serviceName: litecoin
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: litecoin
+    spec:
+      terminationGracePeriodSeconds: 10 # value should equal the amount of time the stateful pod needs to shutodwn gracefully
+      containers:
+      - name: litecoin
+        image: litecoin:1 # image must be pre-existing
+        imagePullPolicy: Never # want to pull from my local, image won't exist in a registry
+        ports:
+        - containerPort: 9332
+          name: p1
+        - containerPort: 9333
+          name: p2
+        - containerPort: 19332
+          name: p3
+        - containerPort: 19333
+          name: p4
+        - containerPort: 19444
+          name: p5
+        volumeMounts:
+        - name: data
+          mountPath: /home/litecoin
+        - name: docker-sock
+          mountPath: /var/run/docker.sock
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 300m
+            memory: 512Mi
+      volumes:
+      - name: docker-sock
+        hostPath:
+          path: /var/run/docker.sock
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi

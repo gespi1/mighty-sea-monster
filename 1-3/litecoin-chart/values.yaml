@@ -1,0 +1,18 @@
+replicaCount: 2
+
+image:
+  repository: litecoin
+  pullPolicy: Never
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: 1
+
+resources:
+  limits:
+    cpu: 300m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+storage:
+  volumeSize: 1Gi
