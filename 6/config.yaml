@@ -1,0 +1,6 @@
+IAM:
+  PREFIX: sandbox-ci
+  SUFFIXES: False
+TAGS:
+  standard_tag2: "this tag is going to be overwritten"
+  new_tag1: "this is a new tag"

@@ -1,0 +1,5 @@
+kubernetes==12.0.1
+# packages below are recommended by the library maintainers if youre looking to inclide SSL
+# https://github.com/kubernetes-client/python/#hostname-doesnt-match
+urllib3>=1.24.2
+ipaddress>=1.0.17;python_version=="2.7"
